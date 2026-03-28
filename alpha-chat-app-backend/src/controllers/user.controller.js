@@ -20,7 +20,7 @@ export const syncUser = async (req, res) => {
       user = new User({
         firebaseUid: uid,
         email,
-        name: displayName || baseName, // Use displayName or fallback
+        name:(displayName==null?uniqueUsername:displayName), // Use displayName or fallback
         username: uniqueUsername,
         photoURL
       });
