@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useChatStore from '../../store/useChatStore';
-import { Search, Plus, LogOut, X, Loader2 } from 'lucide-react';
+import { FiSearch, FiPlus, FiLogOut, FiX } from 'react-icons/fi';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { formatDistanceToNow } from 'date-fns';
 import { auth } from '../../config/firebase.config';
 import { signOut } from 'firebase/auth';
@@ -103,16 +104,16 @@ const ChatSidebar = ({ currentUser }) => {
             onClick={toggleTheme}
             className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-yellow-500' : 'hover:bg-gray-50 text-gray-500'}`}
           >
-            {theme === 'dark' ? <Plus size={20} className="rotate-45" /> : <Plus size={20} />}
+            {theme === 'dark' ? <FiPlus size={20} className="rotate-45" /> : <FiPlus size={20} />}
           </button>
           <button 
             onClick={() => setIsSearchingUsers(!isSearchingUsers)}
             className={`p-2 rounded-full transition-colors ${isSearchingUsers ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-50'}`}
           >
-            {isSearchingUsers ? <X size={20} /> : <Search size={20} />}
+            {isSearchingUsers ? <FiX size={20} /> : <FiSearch size={20} />}
           </button>
           <button onClick={handleLogout} className="p-2 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors">
-            <LogOut size={20} />
+            <FiLogOut size={20} />
           </button>
         </div>
       </div>
@@ -120,7 +121,7 @@ const ChatSidebar = ({ currentUser }) => {
       {/* Search Bar */}
       <div className="p-4">
         <div className="relative">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
+          <FiSearch className={`absolute left-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
           <input 
             type="text" 
             placeholder={isSearchingUsers ? "Find people..." : "Search chats..."}
@@ -144,11 +145,11 @@ const ChatSidebar = ({ currentUser }) => {
                 onClick={() => setIsGroupModalOpen(true)}
                 className="text-[10px] font-bold text-indigo-500 hover:text-indigo-400 uppercase tracking-wider"
               >
-                + Create Group
+                <FiPlus size={14} className="mr-1" /> Create Group
               </button>
             </div>
             {isSearchLoading ? (
-              <div className="flex justify-center p-8"><Loader2 className="animate-spin text-indigo-500" /></div>
+              <div className="flex justify-center p-8"><AiOutlineLoading3Quarters className="animate-spin text-indigo-500" /></div>
             ) : searchResults.length === 0 ? (
               <div className="p-4 text-center text-gray-400 text-sm">No users found</div>
             ) : (
