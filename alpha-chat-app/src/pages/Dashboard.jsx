@@ -24,10 +24,10 @@ const Dashboard = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          //const user = await syncUser(currentUser);
+          await syncUser(currentUser);
           const token = await currentUser.getIdToken(true);
           const socket = socketService.connect(token);
-          //console.log(user)
+          
           if (socket) {
             socket.on("user_status_changed", handleUserStatus);
             socket.on("online_users_list", setOnlineUsersList);
