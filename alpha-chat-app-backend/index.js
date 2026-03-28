@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import https from 'https';
 import { Server as SocketIOServer } from 'socket.io';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -22,6 +23,20 @@ const io = new SocketIOServer(server, {
     credentials: true
   }
 });
+
+/**
+ * A Self ping function which will call after 8 mins to keep the server wake and console a message "I am Still Wake up"
+ * 
+ */
+const SELF_URL = process.env.SELF_URL;
+
+if (SELF_URL) {
+  setInterval(() => {
+    https.get(SELF_URL, res => {
+      console.log("Self ping:", res.statusCode);
+    }).on("error", () => { });
+  }, 5 * 60 * 1000); // every 5 minutes
+}
 
 // Middleware
 app.use(cors());
