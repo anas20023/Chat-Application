@@ -53,7 +53,7 @@ class SoundService {
           oscillator.stop(now + 0.1);
           break;
 
-        case 'seen':
+        case 'seen': {
           // Very short subtle double click
           oscillator.type = 'square';
           oscillator.frequency.setValueAtTime(1000, now);
@@ -77,6 +77,7 @@ class SoundService {
           oscillator2.start(now + 0.05);
           oscillator2.stop(now + 0.07);
           break;
+        }
 
         default:
           break;
