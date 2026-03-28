@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import useChatStore from '../../store/useChatStore';
 import socketService from '../../services/socket.service';
 import MessageBubble from './MessageBubble';
-import { Send, Image, Smile, Search, Phone, Video, Info } from 'lucide-react';
+import { FiImage, FiSmile, FiSearch, FiPhone, FiVideo, FiInfo, FiX } from 'react-icons/fi';
+import { IoSend } from 'react-icons/io5';
 
 const ChatWindow = ({ currentUser }) => {
   const { 
@@ -82,7 +83,7 @@ const ChatWindow = ({ currentUser }) => {
         <div className={`w-24 h-24 rounded-3xl shadow-sm flex items-center justify-center mb-6 ${
           theme === 'dark' ? 'bg-[#252830]' : 'bg-white'
         }`}>
-          <Smile size={48} className={theme === 'dark' ? 'text-gray-700' : 'text-indigo-200'} />
+          <FiSmile size={48} className={theme === 'dark' ? 'text-gray-700' : 'text-indigo-200'} />
         </div>
         <h2 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Welcome to Alpha Chat</h2>
         <p className="max-w-md">Select a conversation from the sidebar or start a new one to begin chatting in real-time.</p>
@@ -107,7 +108,7 @@ const ChatWindow = ({ currentUser }) => {
             onClick={() => setActiveRoom(null)}
             className={`md:hidden p-2 -ml-2 rounded-full hover:bg-opacity-10 ${theme === 'dark' ? 'text-gray-400 hover:bg-white' : 'text-gray-600 hover:bg-gray-900'}`}
           >
-            <X size={20} className="rotate-0" />
+            <FiX size={20} className="rotate-0" />
           </button>
           <div className="relative">
             <img 
@@ -127,9 +128,9 @@ const ChatWindow = ({ currentUser }) => {
           </div>
         </div>
         <div className="flex items-center gap-2 text-gray-400">
-          <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><Phone size={20} /></button>
-          <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><Video size={20} /></button>
-          <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><Info size={20} /></button>
+          <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><FiPhone size={20} /></button>
+          <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><FiVideo size={20} /></button>
+          <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><FiInfo size={20} /></button>
         </div>
       </div>
 
@@ -168,10 +169,10 @@ const ChatWindow = ({ currentUser }) => {
       }`}>
         <div className="flex gap-1 mb-1">
           <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'text-gray-500 hover:text-indigo-400 hover:bg-gray-800' : 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50'}`}>
-            <Smile size={22} />
+            <FiSmile size={22} />
           </button>
           <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'text-gray-500 hover:text-indigo-400 hover:bg-gray-800' : 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50'}`}>
-            <Image size={22} />
+            <FiImage size={22} />
           </button>
         </div>
         
@@ -202,7 +203,7 @@ const ChatWindow = ({ currentUser }) => {
             disabled={!message.trim()}
             className="mb-1 p-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 disabled:bg-gray-700 disabled:text-gray-500 transition-all shadow-lg shadow-indigo-500/10"
           >
-            <Send size={20} />
+            <IoSend size={20} />
           </button>
         </form>
       </div>

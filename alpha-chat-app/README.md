@@ -66,6 +66,6 @@ useEffect(() => {
 - **React**: UI Framework
 - **Zustand**: State Management
 - **Tailwind CSS**: Styling & Dark Mode
-- **Lucide React**: Icon Library
+- **React Icons**: Icon Library
 - **Socket.io-client**: Real-time Communication
 - **Firebase**: Authentication & Media Storage

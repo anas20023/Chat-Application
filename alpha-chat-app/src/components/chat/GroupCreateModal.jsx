@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { X, Search, Users, Loader2 } from 'lucide-react';
+import { FiX, FiSearch, FiUsers } from 'react-icons/fi';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import useChatStore from '../../store/useChatStore';
 import socketService from '../../services/socket.service';
 
@@ -68,12 +69,12 @@ const GroupCreateModal = ({ isOpen, onClose, currentUser }) => {
         <div className={`p-6 flex items-center justify-between border-b ${theme === 'dark' ? 'border-gray-800' : 'border-gray-100'}`}>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl">
-              <Users size={20} />
+              <FiUsers size={20} />
             </div>
             <h2 className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Create New Group</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-            <X size={20} className="text-gray-500" />
+            <FiX size={20} className="text-gray-500" />
           </button>
         </div>
 
@@ -95,7 +96,7 @@ const GroupCreateModal = ({ isOpen, onClose, currentUser }) => {
           <div className="space-y-2">
             <label className={`text-xs font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>Add Members</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
               <input 
                 type="text" 
                 placeholder="Search users..."
@@ -111,7 +112,7 @@ const GroupCreateModal = ({ isOpen, onClose, currentUser }) => {
           {/* Search Results */}
           <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1">
             {isLoading ? (
-              <div className="flex justify-center p-4"><Loader2 className="animate-spin text-indigo-500" /></div>
+              <div className="flex justify-center p-4"><AiOutlineLoading3Quarters className="animate-spin text-indigo-500" /></div>
             ) : searchResults.map(user => (
               <div 
                 key={user._id}
@@ -126,7 +127,7 @@ const GroupCreateModal = ({ isOpen, onClose, currentUser }) => {
                   <img src={user.photoURL} alt={user.username} className="w-8 h-8 rounded-full" />
                   <span className="text-sm font-medium">{user.username}</span>
                 </div>
-                {selectedUsers.find(u => u._id === user._id) && <X size={14} />}
+                {selectedUsers.find(u => u._id === user._id) && <FiX size={14} />}
               </div>
             ))}
           </div>

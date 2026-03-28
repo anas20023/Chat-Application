@@ -1,6 +1,7 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { Check, CheckCheck, Play, Pause, Volume2 } from 'lucide-react';
+import { FiCheck, FiPlay, FiPause, FiVolume2 } from 'react-icons/fi';
+import { IoCheckmarkDone } from 'react-icons/io5';
 import useChatStore from '../../store/useChatStore';
 
 const MessageBubble = ({ message, isMe }) => {
@@ -25,7 +26,7 @@ const MessageBubble = ({ message, isMe }) => {
             isMe ? 'bg-indigo-500/50' : (theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50')
           }`}>
             <div className={`p-2 rounded-full ${isMe ? 'bg-white text-indigo-600' : 'bg-indigo-600 text-white'}`}>
-              <Play size={16} fill="currentColor" />
+              <FiPlay size={16} fill="currentColor" />
             </div>
             <div className="flex-1 h-1.5 bg-gray-400/30 rounded-full relative overflow-hidden">
               <div className={`absolute left-0 top-0 h-full w-1/3 ${isMe ? 'bg-white' : 'bg-indigo-600'}`}></div>
@@ -62,9 +63,9 @@ const MessageBubble = ({ message, isMe }) => {
           {isMe && (
             <span className="flex items-center">
               {message.status === 'seen' ? (
-                <CheckCheck size={12} className={theme === 'dark' ? 'text-indigo-400' : 'text-cyan-300'} />
+                <IoCheckmarkDone size={16} className={theme === 'dark' ? 'text-indigo-400' : 'text-cyan-300'} />
               ) : (
-                <Check size={12} className="opacity-70" />
+                <FiCheck size={12} className="opacity-70" />
               )}
             </span>
           )}
