@@ -9,7 +9,7 @@ import {
 import { auth } from '../config/firebase.config';
 import toast from 'react-hot-toast';
 import useChatStore from '../store/useChatStore';
-
+import { FcGoogle } from "react-icons/fc";
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -181,8 +181,8 @@ const Register = () => {
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all shadow-sm"
         >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/google.svg" alt="Google" className="w-5 h-5" />
-          Google
+           <FcGoogle size={20} />
+          Continue with Google
         </button>
 
         <div className="text-center mt-4">
