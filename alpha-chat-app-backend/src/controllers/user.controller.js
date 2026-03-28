@@ -9,21 +9,26 @@ export const syncUser = async (req, res) => {
       return res.status(400).json({ error: "UID and Email are required" });
     }
 
-    // Find or create user
+    // Update or Create user
     let user = await User.findOne({ firebaseUid: uid });
 
     if (!user) {
+      // Ensure username is unique (fallback to email prefix if display name is missing)
+      const baseName = (displayName || email.split('@')[0]).replace(/\s+/g, '_').toLowerCase();
+      const uniqueUsername = `${baseName}_${Math.floor(Math.random() * 1000)}`;
+
       user = new User({
         firebaseUid: uid,
         email,
-        username: displayName || email.split('@')[0],
+        username: uniqueUsername,
         photoURL
       });
       await user.save();
     } else {
-      // Update existing user info if needed
-      user.username = displayName || user.username;
-      user.photoURL = photoURL || user.photoURL;
+      // Sync latest info from Firebase
+      if (photoURL) user.photoURL = photoURL;
+      // If the user previously didn't have a good username, we could update it here,
+      // but usually, we keep it once created.
       await user.save();
     }
 

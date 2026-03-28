@@ -8,21 +8,34 @@ import useChatStore from '../store/useChatStore';
 
 const Dashboard = () => {
   const [initializing, setInitializing] = useState(true);
-  const { syncUser, clearChat, dbUser } = useChatStore();
+  const { 
+    syncUser, 
+    clearChat, 
+    dbUser, 
+    theme, 
+    activeRoom, 
+    handleUserStatus, 
+    setOnlineUsersList,
+    handleMessagesRead 
+  } = useChatStore();
 
   useEffect(() => {
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        // --- Sync User with MongoDB ---
         try {
-          await syncUser(currentUser);
-          
-          // --- Socket Authentication ---
+          const user = await syncUser(currentUser);
           const token = await currentUser.getIdToken(true);
-          socketService.connect(token);
+          const socket = socketService.connect(token);
+
+          if (socket) {
+            socket.on("user_status_changed", handleUserStatus);
+            socket.on("online_users_list", setOnlineUsersList);
+            socket.on("messages_read", handleMessagesRead);
+            socketService.emit("get_online_users");
+          }
         } catch (error) {
-          console.error("Failed to sync user or connect socket:", error);
+          console.error("Auth sync error:", error);
         } finally {
           setInitializing(false);
         }
@@ -35,13 +48,15 @@ const Dashboard = () => {
 
     return () => {
       unsubscribe();
-      socketService.disconnect();
+      socketService.off("user_status_changed");
+      socketService.off("online_users_list");
+      socketService.off("messages_read");
     };
-  }, [syncUser, clearChat]);
+  }, [syncUser, clearChat, handleUserStatus, setOnlineUsersList, handleMessagesRead]);
 
   if (initializing) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-gray-50 text-gray-400">
+      <div className={`h-screen w-full flex items-center justify-center ${theme === 'dark' ? 'bg-gray-900 text-gray-400' : 'bg-gray-50 text-gray-400'}`}>
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
           <p className="animate-pulse text-sm font-medium">Initializing Alpha Chat...</p>
@@ -52,19 +67,23 @@ const Dashboard = () => {
 
   if (!dbUser) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-gray-50 text-gray-400">
+      <div className={`h-screen w-full flex items-center justify-center ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
         <p>User not found. Please log in again.</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen w-full flex bg-gray-50 overflow-hidden font-sans antialiased text-gray-900">
+    <div className={`h-screen w-full flex overflow-hidden font-sans antialiased ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Sidebar - Rooms/Users */}
-      <ChatSidebar currentUser={dbUser} />
+      <div className={`${activeRoom ? 'hidden md:flex' : 'flex'} w-full md:w-80 h-full border-r ${theme === 'dark' ? 'border-gray-800' : 'border-gray-100'}`}>
+        <ChatSidebar currentUser={dbUser} />
+      </div>
       
       {/* Main Chat Area */}
-      <ChatWindow currentUser={dbUser} />
+      <div className={`${activeRoom ? 'flex' : 'hidden md:flex'} flex-1 h-full`}>
+        <ChatWindow currentUser={dbUser} />
+      </div>
     </div>
   );
 };

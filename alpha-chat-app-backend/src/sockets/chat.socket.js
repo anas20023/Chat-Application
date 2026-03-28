@@ -32,10 +32,17 @@ const chatSocket = (io) => {
         email: user.email
       };
       
-      // Mark user as online
+      // Mark user as online and notify others
       user.isOnline = true;
       user.lastSeen = new Date();
       await user.save();
+
+      // Notify all users about online status
+      io.emit("user_status_changed", {
+        userId: user._id,
+        isOnline: true,
+        lastSeen: user.lastSeen
+      });
 
       next();
     } catch (error) {
@@ -114,15 +121,99 @@ const chatSocket = (io) => {
       });
     });
 
+    // --- Read Receipts ---
+    socket.on("mark_as_read", async ({ roomId }) => {
+      try {
+        await Message.updateMany(
+          { roomId, senderId: { $ne: socket.user._id }, status: { $ne: 'seen' } },
+          { $set: { status: 'seen' } }
+        );
+        
+        io.to(roomId).emit("messages_read", {
+          roomId,
+          userId: socket.user._id
+        });
+      } catch (error) {
+        console.error("Error marking messages as read:", error);
+      }
+    });
+
+    // --- Group Management ---
+    socket.on("create_group", async (data) => {
+      try {
+        const { name, participants, description, avatar } = data;
+        
+        // Add creator as admin and participant
+        const newRoom = new Room({
+          name,
+          description,
+          avatar,
+          type: 'group',
+          participants: [...new Set([...participants, socket.user._id])],
+          admin: [socket.user._id]
+        });
+
+        await newRoom.save();
+        
+        // Populate participants for the clients
+        const populatedRoom = await Room.findById(newRoom._id)
+          .populate("participants", "username photoURL isOnline");
+
+        // Notify all participants
+        populatedRoom.participants.forEach(p => {
+          io.to(p._id.toString()).emit("room_created", populatedRoom);
+        });
+
+      } catch (error) {
+        console.error("Error creating group:", error);
+        socket.emit("error", { message: "Failed to create group" });
+      }
+    });
+
+    socket.on("update_group", async (data) => {
+      try {
+        const { roomId, name, description, avatar } = data;
+        const room = await Room.findById(roomId);
+        
+        if (!room || !room.admin.includes(socket.user._id)) {
+          return socket.emit("error", { message: "Unauthorized or group not found" });
+        }
+
+        room.name = name || room.name;
+        room.description = description || room.description;
+        room.avatar = avatar || room.avatar;
+        room.updatedAt = new Date();
+        
+        await room.save();
+        io.to(roomId).emit("group_updated", room);
+      } catch (error) {
+        console.error("Error updating group:", error);
+      }
+    });
+
+    // Fetch initial online users
+    socket.on("get_online_users", async () => {
+      const onlineUsers = await User.find({ isOnline: true }).select("_id");
+      socket.emit("online_users_list", onlineUsers.map(u => u._id));
+    });
+
     // --- Presence ---
     socket.on("disconnect", async () => {
       console.log(`User disconnected: ${socket.user.username}`);
       
       try {
+        const lastSeen = new Date();
         // Mark user as offline
         await User.findByIdAndUpdate(socket.user._id, {
           isOnline: false,
-          lastSeen: new Date()
+          lastSeen
+        });
+
+        // Notify all users
+        io.emit("user_status_changed", {
+          userId: socket.user._id,
+          isOnline: false,
+          lastSeen
         });
       } catch (error) {
         console.error("Error updating presence on disconnect:", error);

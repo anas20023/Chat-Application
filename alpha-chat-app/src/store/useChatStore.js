@@ -11,6 +11,8 @@ const useChatStore = create((set, get) => ({
   activeRoom: null,
   messages: [],
   typingUsers: {}, // { roomId: [userId1, userId2] }
+  onlineUsers: [], // Array of user IDs
+  theme: localStorage.getItem('chat-theme') || 'light',
   isLoading: false,
   error: null,
   dbUser: null, // The MongoDB user record (synced from Firebase)
@@ -58,7 +60,13 @@ const useChatStore = create((set, get) => ({
     if (room) {
       socketService.emit('join_room', room._id);
       get().fetchMessages(room._id);
+      // Mark as read when entering
+      socketService.emit('mark_as_read', { roomId: room._id });
     }
+  },
+
+  markAsRead: (roomId) => {
+    socketService.emit('mark_as_read', { roomId });
   },
 
   // --- Message Actions ---
@@ -116,6 +124,33 @@ const useChatStore = create((set, get) => ({
         }
       };
     });
+  },
+
+  handleUserStatus: ({ userId, isOnline }) => {
+    set((state) => ({
+      onlineUsers: isOnline 
+        ? [...new Set([...state.onlineUsers, userId])]
+        : state.onlineUsers.filter(id => id !== userId)
+    }));
+  },
+
+  setOnlineUsersList: (userIds) => {
+    set({ onlineUsers: userIds });
+  },
+
+  handleMessagesRead: ({ roomId, userId }) => {
+    set((state) => ({
+      messages: state.messages.map(msg => 
+        msg.roomId === roomId && msg.senderId._id !== userId 
+          ? { ...msg, status: 'seen' } 
+          : msg
+      )
+    }));
+  },
+
+  setTheme: (theme) => {
+    localStorage.setItem('chat-theme', theme);
+    set({ theme });
   },
 
   // --- Utility ---

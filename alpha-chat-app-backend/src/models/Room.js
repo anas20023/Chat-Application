@@ -5,12 +5,23 @@ const roomSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  avatar: {
+    type: String
+  },
+  description: {
+    type: String,
+    trim: true
+  },
   type: {
     type: String,
     enum: ['direct', 'group'],
     default: 'direct'
   },
   participants: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  admin: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],

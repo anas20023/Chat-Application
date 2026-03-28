@@ -13,8 +13,13 @@ const messageSchema = new mongoose.Schema({
   },
   message: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    required: function() { return !this.attachments || this.attachments.length === 0; }
+  },
+  messageType: {
+    type: String,
+    enum: ['text', 'image', 'voice'],
+    default: 'text'
   },
   status: {
     type: String,
