@@ -30,7 +30,7 @@ const useChatStore = create((set, get) => ({
       return dbUser;
     } catch (error) {
       console.error("Failed to sync user with MongoDB:", error);
-      throw error;
+      throw new Error("User Already Exists");
     }
   },
 
