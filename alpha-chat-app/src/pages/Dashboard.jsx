@@ -8,15 +8,15 @@ import useChatStore from '../store/useChatStore';
 
 const Dashboard = () => {
   const [initializing, setInitializing] = useState(true);
-  const { 
-    syncUser, 
-    clearChat, 
-    dbUser, 
-    theme, 
-    activeRoom, 
-    handleUserStatus, 
+  const {
+    syncUser,
+    clearChat,
+    dbUser,
+    theme,
+    activeRoom,
+    handleUserStatus,
     setOnlineUsersList,
-    handleMessagesRead 
+    handleMessagesRead
   } = useChatStore();
 
   useEffect(() => {
@@ -24,10 +24,10 @@ const Dashboard = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          const user = await syncUser(currentUser);
+          //const user = await syncUser(currentUser);
           const token = await currentUser.getIdToken(true);
           const socket = socketService.connect(token);
-
+          //console.log(user)
           if (socket) {
             socket.on("user_status_changed", handleUserStatus);
             socket.on("online_users_list", setOnlineUsersList);
@@ -67,8 +67,11 @@ const Dashboard = () => {
 
   if (!dbUser) {
     return (
-      <div className={`h-screen w-full flex items-center justify-center ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
-        <p>User not found. Please log in again.</p>
+      <div className={`h-screen w-full flex items-center justify-center ${theme === 'dark' ? 'bg-gray-900 text-gray-400' : 'bg-gray-50 text-gray-400'}`}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="animate-pulse text-sm font-medium">User not found. Please log in again.</p>
+        </div>
       </div>
     );
   }
@@ -79,7 +82,7 @@ const Dashboard = () => {
       <div className={`${activeRoom ? 'hidden md:flex' : 'flex'} w-full md:w-80 h-full border-r ${theme === 'dark' ? 'border-gray-800' : 'border-gray-100'}`}>
         <ChatSidebar currentUser={dbUser} />
       </div>
-      
+
       {/* Main Chat Area */}
       <div className={`${activeRoom ? 'flex' : 'hidden md:flex'} flex-1 h-full`}>
         <ChatWindow currentUser={dbUser} />

@@ -16,10 +16,11 @@ export const syncUser = async (req, res) => {
       // Ensure username is unique (fallback to email prefix if display name is missing)
       const baseName = (displayName || email.split('@')[0]).replace(/\s+/g, '_').toLowerCase();
       const uniqueUsername = `${baseName}_${Math.floor(Math.random() * 1000)}`;
-
+      console.log(displayName,uniqueUsername)
       user = new User({
         firebaseUid: uid,
         email,
+        name:displayName,
         username: uniqueUsername,
         photoURL
       });

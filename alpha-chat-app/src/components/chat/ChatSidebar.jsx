@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useChatStore from '../../store/useChatStore';
 import { FiSearch, FiPlus, FiLogOut, FiX } from 'react-icons/fi';
+import { MdLightMode,MdNightlight  } from "react-icons/md";
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { formatDistanceToNow } from 'date-fns';
 import { auth } from '../../config/firebase.config';
@@ -93,18 +94,18 @@ const ChatSidebar = ({ currentUser }) => {
       <div className={`p-4 flex items-center justify-between border-b ${theme === 'dark' ? 'border-gray-800/50' : 'border-gray-50'}`}>
         <div className="flex items-center gap-3">
           <img 
-            src={currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.username || 'User'}&background=random`} 
+            src={currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.name || 'User'}&background=random`} 
             alt="Profile" 
             className={`w-10 h-10 rounded-full object-cover border-2 ${theme === 'dark' ? 'border-gray-700' : 'border-indigo-50'}`}
           />
-          <h1 className={`font-bold truncate max-w-25 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentUser.username || 'Me'}</h1>
+          <h1 className={`font-bold truncate max-w-25 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{currentUser.name || 'Me'}</h1>
         </div>
         <div className="flex items-center gap-1 text-gray-400">
           <button 
             onClick={toggleTheme}
             className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-yellow-500' : 'hover:bg-gray-50 text-gray-500'}`}
           >
-            {theme === 'dark' ? <FiPlus size={20} className="rotate-45" /> : <FiPlus size={20} />}
+            {theme === 'dark' ? <MdLightMode  size={20} className="rotate-45" /> : <MdNightlight size={20} />}
           </button>
           <button 
             onClick={() => setIsSearchingUsers(!isSearchingUsers)}
@@ -143,7 +144,7 @@ const ChatSidebar = ({ currentUser }) => {
               <h4 className={`text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>People</h4>
               <button 
                 onClick={() => setIsGroupModalOpen(true)}
-                className="text-[10px] font-bold text-indigo-500 hover:text-indigo-400 uppercase tracking-wider"
+                className="text-[10px] font-bold text-indigo-500 hover:text-indigo-400 uppercase tracking-wider flex"
               >
                 <FiPlus size={14} className="mr-1" /> Create Group
               </button>
