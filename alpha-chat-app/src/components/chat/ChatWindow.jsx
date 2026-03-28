@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import useChatStore from '../../store/useChatStore';
 import socketService from '../../services/socket.service';
 import MessageBubble from './MessageBubble';
+import soundService from '../../utils/sound.utils';
 import { FiImage, FiSmile, FiSearch, FiPhone, FiVideo, FiInfo, FiX } from 'react-icons/fi';
 import { IoSend } from 'react-icons/io5';
 
@@ -54,6 +55,7 @@ const ChatWindow = ({ currentUser }) => {
     };
 
     socketService.emit('send_message', messageData);
+    soundService.play('sent'); // Play sent sound
     setMessage('');
     socketService.emit('stop_typing', activeRoom._id);
   };
@@ -126,6 +128,14 @@ const ChatWindow = ({ currentUser }) => {
           <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><FiPhone size={20} /></button>
           <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><FiVideo size={20} /></button>
           <button className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}><FiInfo size={20} /></button>
+          {/* Close option for desktop */}
+          <button 
+            onClick={() => setActiveRoom(null)}
+            className={`hidden md:flex p-2 rounded-full transition-colors hover:bg-red-50 hover:text-red-500 ${theme === 'dark' ? 'hover:bg-red-500/10' : ''}`}
+            title="Close Chat"
+          >
+            <FiX size={20} />
+          </button>
         </div>
       </div>
 

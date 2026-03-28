@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 import socketService from '../services/socket.service';
+import soundService from '../utils/sound.utils';
 
 // URL normalization to prevent double slashes
 const RAW_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
@@ -86,16 +87,27 @@ const useChatStore = create((set, get) => ({
   },
 
   addMessage: (message) => {
-    const { activeRoom } = get();
+    const { activeRoom, dbUser } = get();
     
-    // 1. If the message belongs to the active room, add it to the messages list
+    // 1. Play "received" sound if the sender is not the current user
+    const senderId = message.senderId?._id || message.senderId;
+    if (dbUser && senderId !== dbUser._id) {
+      soundService.play('received');
+
+      // 2. If it's for the active room, mark as read automatically
+      if (activeRoom && activeRoom._id === message.roomId) {
+        socketService.emit('mark_as_read', { roomId: message.roomId });
+      }
+    }
+    
+    // 3. If the message belongs to the active room, add it to the messages list
     if (activeRoom && activeRoom._id === message.roomId) {
       set((state) => ({ 
         messages: [...state.messages, message] 
       }));
     }
     
-    // 2. Update the room in the sidebar list (last message, timestamp, position)
+    // 4. Update the room in the sidebar list (last message, timestamp, position)
     set((state) => {
       const roomIndex = state.rooms.findIndex(r => r._id === message.roomId);
       
@@ -154,11 +166,31 @@ const useChatStore = create((set, get) => ({
   },
 
   handleMessagesRead: ({ roomId, userId }) => {
+    const { dbUser } = get();
+    
+    // Play "seen" sound if OUR message was read by the other person
+    if (dbUser && userId !== dbUser._id) {
+      const room = get().rooms.find(r => r._id === roomId);
+      const lastMsg = room?.lastMessage;
+      if (lastMsg) {
+        const lastMsgSenderId = lastMsg.senderId?._id || lastMsg.senderId;
+        if (lastMsgSenderId === dbUser._id && lastMsg.status !== 'seen') {
+          soundService.play('seen');
+        }
+      }
+    }
+
     set((state) => ({
       messages: state.messages.map(msg => 
-        msg.roomId === roomId && msg.senderId._id !== userId 
+        msg.roomId === roomId && (msg.senderId?._id || msg.senderId) !== userId 
           ? { ...msg, status: 'seen' } 
           : msg
+      ),
+      // Update lastMessage status in the rooms list as well
+      rooms: state.rooms.map(room => 
+        room._id === roomId && room.lastMessage && (room.lastMessage.senderId?._id || room.lastMessage.senderId) !== userId
+          ? { ...room, lastMessage: { ...room.lastMessage, status: 'seen' } }
+          : room
       )
     }));
   },

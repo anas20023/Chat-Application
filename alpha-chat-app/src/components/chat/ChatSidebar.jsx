@@ -216,21 +216,46 @@ const ChatSidebar = ({ currentUser }) => {
                         <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full shadow-sm"></div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-baseline">
-                        <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-indigo-500' : (theme === 'dark' ? 'text-gray-200' : 'text-gray-900')}`}>
-                          {otherUser?.username || 'Group Chat'}
-                        </h3>
-                        {room.lastMessage && (
-                          <span className="text-[10px] text-gray-500 whitespace-nowrap">
-                            {formatDistanceToNow(new Date(room.lastMessage.createdAt), { addSuffix: false })}
-                          </span>
-                        )}
-                      </div>
-                      <p className={`text-xs truncate mt-0.5 ${isActive ? (theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600') : 'text-gray-500'}`}>
-                        {room.lastMessage?.message || 'Start a conversation'}
-                      </p>
-                    </div>
+                    {/* Unread indicator logic */}
+                    {(() => {
+                      const isUnread = room.lastMessage && 
+                                       (room.lastMessage.senderId?._id || room.lastMessage.senderId) !== currentUser._id && 
+                                       room.lastMessage.status !== 'seen' &&
+                                       !isActive;
+                      
+                      return (
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-baseline">
+                            <h3 className={`text-sm truncate ${
+                              isActive 
+                                ? 'text-indigo-500 font-bold' 
+                                : isUnread 
+                                  ? (theme === 'dark' ? 'text-white font-bold' : 'text-gray-900 font-bold') 
+                                  : (theme === 'dark' ? 'text-gray-200 font-semibold' : 'text-gray-900 font-semibold')
+                            }`}>
+                              {otherUser?.username || 'Group Chat'}
+                            </h3>
+                            {room.lastMessage && (
+                              <div className="flex items-center gap-2">
+                                {isUnread && <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>}
+                                <span className={`text-[10px] whitespace-nowrap ${isUnread ? 'text-indigo-500 font-bold' : 'text-gray-500'}`}>
+                                  {formatDistanceToNow(new Date(room.lastMessage.createdAt), { addSuffix: false })}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <p className={`text-xs truncate mt-0.5 ${
+                            isActive 
+                              ? (theme === 'dark' ? 'text-indigo-400 font-medium' : 'text-indigo-600 font-medium') 
+                              : isUnread 
+                                ? (theme === 'dark' ? 'text-gray-100 font-bold' : 'text-gray-900 font-bold') 
+                                : 'text-gray-500'
+                          }`}>
+                            {room.lastMessage?.message || 'Start a conversation'}
+                          </p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })
