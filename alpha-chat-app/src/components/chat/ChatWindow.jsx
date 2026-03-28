@@ -30,10 +30,6 @@ const ChatWindow = ({ currentUser }) => {
   useEffect(() => {
     if (!activeRoom) return;
 
-    socketService.on('receive_message', (newMessage) => {
-      addMessage(newMessage);
-    });
-
     socketService.on('user_typing', (data) => {
       handleTyping(activeRoom._id, data);
     });
@@ -43,11 +39,10 @@ const ChatWindow = ({ currentUser }) => {
     });
 
     return () => {
-      socketService.off('receive_message');
       socketService.off('user_typing');
       socketService.off('user_stop_typing');
     };
-  }, [activeRoom, addMessage, handleTyping, handleStopTyping]);
+  }, [activeRoom, handleTyping, handleStopTyping]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();

@@ -86,18 +86,33 @@ const useChatStore = create((set, get) => ({
   },
 
   addMessage: (message) => {
-    set((state) => ({ 
-      messages: [...state.messages, message] 
-    }));
+    const { activeRoom } = get();
     
-    // Update last message in rooms list for sidebar
-    set((state) => ({
-      rooms: state.rooms.map(room => 
-        room._id === message.roomId 
-          ? { ...room, lastMessage: message, updatedAt: new Date().toISOString() }
-          : room
-      ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    }));
+    // 1. If the message belongs to the active room, add it to the messages list
+    if (activeRoom && activeRoom._id === message.roomId) {
+      set((state) => ({ 
+        messages: [...state.messages, message] 
+      }));
+    }
+    
+    // 2. Update the room in the sidebar list (last message, timestamp, position)
+    set((state) => {
+      const roomIndex = state.rooms.findIndex(r => r._id === message.roomId);
+      
+      if (roomIndex === -1) return state; // Room not in list (yet)
+
+      const updatedRooms = [...state.rooms];
+      updatedRooms[roomIndex] = {
+        ...updatedRooms[roomIndex],
+        lastMessage: message,
+        updatedAt: new Date().toISOString()
+      };
+
+      // Sort rooms by updatedAt descending
+      return {
+        rooms: updatedRooms.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      };
+    });
   },
 
   // --- Socket Event Handlers ---
@@ -145,6 +160,28 @@ const useChatStore = create((set, get) => ({
           ? { ...msg, status: 'seen' } 
           : msg
       )
+    }));
+  },
+
+  handleRoomCreated: (newRoom) => {
+    set((state) => {
+      // Avoid duplicates
+      if (state.rooms.find(r => r._id === newRoom._id)) return state;
+      
+      // Add to rooms and sort
+      return {
+        rooms: [newRoom, ...state.rooms].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      };
+    });
+
+    // Automatically join the socket room
+    socketService.emit('join_room', newRoom._id);
+  },
+
+  handleGroupUpdated: (updatedRoom) => {
+    set((state) => ({
+      rooms: state.rooms.map(r => r._id === updatedRoom._id ? { ...r, ...updatedRoom } : r),
+      activeRoom: state.activeRoom?._id === updatedRoom._id ? { ...state.activeRoom, ...updatedRoom } : state.activeRoom
     }));
   },
 

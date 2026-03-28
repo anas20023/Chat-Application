@@ -51,12 +51,27 @@ const chatSocket = (io) => {
     }
   });
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     console.log(`User connected: ${socket.user.username} (${socket.id})`);
+
+    // --- Join personal and existing rooms ---
+    try {
+      // 1. Join personal room for user-specific notifications
+      socket.join(socket.user._id.toString());
+      
+      // 2. Join all existing chat rooms for real-time updates
+      const userRooms = await Room.find({ participants: socket.user._id });
+      userRooms.forEach(room => {
+        socket.join(room._id.toString());
+      });
+      console.log(`User ${socket.user.username} joined ${userRooms.length + 1} rooms automatically`);
+    } catch (error) {
+      console.error("Error joining rooms on connection:", error);
+    }
 
     // --- Core Events ---
 
-    // Join Room
+    // Join Room (Explicitly for new or dynamic rooms)
     socket.on("join_room", (roomId) => {
       socket.join(roomId);
       console.log(`User ${socket.user.username} joined room: ${roomId}`);

@@ -16,7 +16,10 @@ const Dashboard = () => {
     activeRoom,
     handleUserStatus,
     setOnlineUsersList,
-    handleMessagesRead
+    handleMessagesRead,
+    addMessage,
+    handleRoomCreated,
+    handleGroupUpdated
   } = useChatStore();
 
   useEffect(() => {
@@ -32,6 +35,9 @@ const Dashboard = () => {
             socket.on("user_status_changed", handleUserStatus);
             socket.on("online_users_list", setOnlineUsersList);
             socket.on("messages_read", handleMessagesRead);
+            socket.on("receive_message", addMessage);
+            socket.on("room_created", handleRoomCreated);
+            socket.on("group_updated", handleGroupUpdated);
             socketService.emit("get_online_users");
           }
         } catch (error) {
@@ -51,8 +57,11 @@ const Dashboard = () => {
       socketService.off("user_status_changed");
       socketService.off("online_users_list");
       socketService.off("messages_read");
+      socketService.off("receive_message");
+      socketService.off("room_created");
+      socketService.off("group_updated");
     };
-  }, [syncUser, clearChat, handleUserStatus, setOnlineUsersList, handleMessagesRead]);
+  }, [syncUser, clearChat, handleUserStatus, setOnlineUsersList, handleMessagesRead, addMessage, handleRoomCreated, handleGroupUpdated]);
 
   if (initializing) {
     return (
